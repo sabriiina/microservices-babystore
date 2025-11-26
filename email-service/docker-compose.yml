@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  cadastro-service:
+    build: ./cadastro-service
+    container_name: cadastro-service
+    ports:
+      - "7001:7001"
+    environment:
+      PAGAMENTO_URL: "http://pagamento-service:7002"
+
+  pagamento-service:
+    build: ./pagamento-service
+    container_name: pagamento-service
+    ports:
+      - "7002:7002"
+    environment:
+      ASAAS_TOKEN: "${ASAAS_TOKEN}"
+      EMAIL_URL: "http://email-service:7003"
+
+  email-service:
+    build: ./email-service
+    container_name: email-service
+    ports:
+      - "7003:7003"
+    environment:
+      SMTP_USER: "${SMTP_USER}"
+      SMTP_PASS: "${SMTP_PASS}"

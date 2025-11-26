@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Carrinho - Produtos de Bebê (Template)</title>
+    <style>
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --muted:#6b7280; --accent:#6c5ce7; --danger:#ef4444; --success:#10b981; --glass: rgba(255,255,255,0.6);
+      --radius:12px; --shadow: 0 6px 18px rgba(12,14,20,0.08);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#eef2ff);min-height:100vh;color:#111827}
+    .wrap{max-width:1100px;margin:28px auto;padding:20px}
+
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:1.25rem;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:0.95rem}
+
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:20px}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}.sidebar{order:-1}}
+
+    /* Product list card */
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+    .tools{display:flex;gap:8px;align-items:center}
+    .btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.secondary{background:#eef2ff;color:var(--accent);font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid #e6e9ff;color:var(--accent)}
+    .btn.danger{background:var(--danger)}
+
+    form.add{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    form.add input, form.add select{padding:8px;border-radius:8px;border:1px solid #e6e9ee;font-size:0.95rem}
+    form.add input[type=number]{width:100px}
+    form.add .full{flex:1 1 100%}
+
+    .products{margin-top:12px;display:grid;gap:12px}
+    .product{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfbff);border:1px solid #f1f3ff}
+    .thumb{width:72px;height:72px;border-radius:8px;background:linear-gradient(180deg,#f3f4ff,#eef2ff);display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:var(--muted)}
+    .meta{flex:1}
+    .meta h3{margin:0;font-size:1rem}
+    .meta p{margin:6px 0 0;color:var(--muted);font-size:0.9rem}
+    .qty{display:flex;align-items:center;gap:6px}
+    .qty input{width:56px;padding:6px;border-radius:8px;border:1px solid #e6e9ee;text-align:center}
+    .product-actions{display:flex;gap:6px}
+
+    /* Sidebar/cart */
+    .sidebar{position:sticky;top:20px}
+    .cart-summary{display:flex;flex-direction:column;gap:12px}
+    .line{display:flex;justify-content:space-between;align-items:center}
+    .total{font-size:1.15rem;font-weight:700}
+
+    /* Table for cart items */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px dashed #eef2ff}
+    th{font-size:0.85rem;color:var(--muted)}
+
+    /* Modal */
+    .modal-back{position:fixed;inset:0;background:rgba(10,12,20,0.45);display:none;align-items:center;justify-content:center;padding:20px}
+    .modal{width:100%;max-width:520px;background:var(--card);border-radius:14px;padding:18px}
+    .modal h2{margin:0 0 8px}
+    .close{float:right;background:transparent;border:none;font-size:1.1rem}
+
+    .empty{color:var(--muted);padding:20px;text-align:center}
+
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:0.85rem}
+
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .pill{padding:6px 10px;border-radius:999px;background:#f3f4ff;color:var(--accent);font-weight:600}
+  </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <div>
+            <h1>Carrinho — Produtos de Bebê</h1>
+            <p class="lead">verifique os itens selecionados e prossiga para pagamento. </p>
+        </div>
+        <div class="tools">
+            <button class="btn" id="btn-clear-storage" title="Limpar dados salvos">Limpar dados</button>
+            <button class="btn secondary" id="btn-sample">Inserir amostras</button>
+        </div>
+    </header>
+
+    <main class="grid">
+        <section class="card">
+            <form class="add" id="form-add" onsubmit="return false" >
+                <input type="text" name="nome" id="p-name" placeholder="Nome do produto" required />
+                <input type="number" id="p-price" placeholder="Preço (R$)" step="0.01" min="0" required />
+                <input type="number" id="p-qty" placeholder="Quantidade" min="1" value="1" required />
+                <select id="p-age">
+                    <option value="0-6">0-6 meses</option>
+                    <option value="6-12">6-12 meses</option>
+                    <option value="1-3">1-3 anos</option>
+                    <option value="3+">3+ anos</option>
+                </select>
+                <input class="full" type="text" id="p-note" placeholder="Observação (opcional)" />
+                <button class="btn" type="submit" id="btn-add">Adicionar</button>
+            </form>
+
+            <div class="products" id="products"></div>
+
+            <div style="margin-top:12px">
+                <button class="btn ghost" id="btn-export">Exportar JSON</button>
+            </div>
+        </section>
+
+        <aside class="sidebar">
+            <div class="card">
+                <h3 style="margin-top:0">Resumo do Carrinho <span class="pill" id="count-pill">0</span></h3>
+                <div class="cart-summary">
+                    <div class="line"><span class="muted">Itens</span><span id="cart-count">0</span></div>
+                    <div class="line"><span class="muted">Subtotal</span><strong id="cart-sub">R$ 0,00</strong></div>
+                    <div class="line"><span class="muted">Desconto</span><span id="cart-disc">R$ 0,00</span></div>
+                    <div class="line total"><span>Total</span><span id="cart-total">R$ 0,00</span></div>
+
+                    <div style="display:flex;gap:8px;margin-top:10px">
+                        <button class="btn" id="btn-checkout">Finalizar compra</button>
+                        <button class="btn secondary" id="btn-empty">Esvaziar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:12px">
+                <h4 style="margin:0 0 8px">Itens no carrinho</h4>
+                <div id="cart-items" style="max-height:260px;overflow:auto">
+                    <div class="empty">Nenhum item adicionado ainda.</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <footer>
+        Tito's Baby
+    </footer>
+</div> 
+
+<!-- Modal simples -->
+ <form action="/gerarlink" method="POST">
+  <div class="modal-back" id="modal">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <input type="hidden" name="nome" id="send-nome">
+          <input type="hidden" name="valor" id="send-valor">
+          <input type="hidden" name="quantidade" id="send-quantidade">
+          <input type="hidden" name="subtotal" id="send-subtotal">
+    <input type="hidden" name="produtos_json" id="send-produtos-json">
+    <input type="hidden" name="parcelas_escolhidas" id="send-parcelas">
+
+          <button class="close" id="modal-close">✕</button>
+          <h2 id="modal-title">Finalizar Compra</h2>
+          <p class="muted">Revise os itens e confirme a compra (simulação).</p>
+          <div id="modal-body" style="margin-top:12px"></div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+            <div style="margin-top:12px">
+    <label><strong>Quantidade de Parcelas (sem juros):</strong></label><br>
+    <select id="parcelas" name="parcelas" style="padding:8px;border-radius:8px;border:1px solid #e6e9ee">
+        <!-- será preenchido pelo JS -->
+    </select>
+</div>
+              <button class="btn secondary" id="modal-cancel">Cancelar</button>
+              <button type="submit" class="btn" id="modal-confirm">Confirmar pagamento</button>
+          </div>
+      </div>
+  </div>
+ </form>
+
+<script>
+
+     window.onload = function() {
+            localStorage.removeItem(KEY); load();
+            localStorage.removeItem("carrinho_bebe_v1");
+            products = [];
+        };
+
+    // --- utilidades ---
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    // Storage key
+    const KEY = 'carrinho_bebe_v1';
+
+    // estado
+    let products = [];
+
+    // format currency
+    const fmt = n => 'R$ ' + Number(n).toFixed(2).replace('.',',');
+
+    // carregar do localStorage
+    function load(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        products = raw ? JSON.parse(raw) : [];
+      }catch(e){products=[]}
+      renderProducts();
+      renderCart();
+    }
+
+    function save(){
+      localStorage.setItem(KEY, JSON.stringify(products));
+      renderCart();
+    }
+
+    // criar id simples
+    function id(){return 'p-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6)}
+
+    // adicionar produto
+    function addProduct(data){
+      products.push(Object.assign({id: id()}, data));
+      save(); renderProducts();
+    }
+
+    // atualizar
+    function updateProduct(pid, patch){
+      products = products.map(p => p.id===pid ? {...p, ...patch} : p);
+      save(); renderProducts();
+    }
+
+    // remover
+    function removeProduct(pid){
+      products = products.filter(p=>p.id!==pid);
+      save(); renderProducts();
+    }
+
+    // render lista
+    function renderProducts(){
+      const container = $('#products');
+      container.innerHTML='';
+      if(products.length===0){
+        container.innerHTML = '<div class="empty">Nenhum produto cadastrado. Use o formulário acima para adicionar.</div>';
+        return;
+      }
+
+      products.forEach(p=>{
+        const el = document.createElement('div'); el.className='product';
+        el.innerHTML = `
+          <div class="thumb">${(p.name||'Produto').slice(0,2).toUpperCase()}</div>
+          <div class="meta">
+            <h3>${escapeHtml(p.name)} <small style="color:var(--muted);font-weight:600">— ${p.age}</small></h3>
+            <p class="muted">${escapeHtml(p.note||'')} </p>
+            <p style="margin-top:6px;font-weight:700">${fmt(p.price)}</p>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div class="qty">
+              <button class="btn secondary" data-action="dec" data-id="${p.id}">-</button>
+              <input type="number" min="1" value="${p.qty}" data-id="${p.id}" class="qty-input" />
+              <button class="btn secondary" data-action="inc" data-id="${p.id}">+</button>
+            </div>
+            <div class="product-actions">
+              <button class="btn ghost" data-action="edit" data-id="${p.id}">Editar</button>
+              <button class="btn danger" data-action="remove" data-id="${p.id}">Remover</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+
+      // attach events
+      $$('.product .btn[data-action]').forEach(b=>b.onclick = handleAction);
+      $$('.qty-input').forEach(i=>i.onchange = e=>{
+        const pid = e.target.dataset.id; const v = parseInt(e.target.value)||1; updateProduct(pid,{qty:v});
+      });
+    }
+
+    function handleAction(e){
+      const el = e.currentTarget; const action = el.dataset.action; const pid = el.dataset.id;
+      if(action==='inc' || action==='dec'){
+        const p = products.find(x=>x.id===pid); if(!p) return;
+        const q = action==='inc' ? p.qty+1 : Math.max(1,p.qty-1);
+        updateProduct(pid,{qty:q});
+      }else if(action==='remove'){
+        if(confirm('Remover este produto?')) removeProduct(pid);
+      }else if(action==='edit'){
+        openEditor(pid);
+      }
+    }
+
+    // abrir editor simples via prompt (rápido) -- adaptável para modal
+    function openEditor(pid){
+      const p = products.find(x=>x.id===pid); if(!p) return;
+      const name = prompt('Nome do produto', p.name); if(name===null) return;
+      const priceRaw = prompt('Preço (ex: 29.90)', String(p.price)); if(priceRaw===null) return;
+      const price = parseFloat(priceRaw.replace(',','.'))||p.price;
+      const qtyRaw = prompt('Quantidade', String(p.qty)); if(qtyRaw===null) return;
+      const qty = Math.max(1, parseInt(qtyRaw)||p.qty);
+      const note = prompt('Observação', p.note||''); if(note===null) return;
+      updateProduct(pid,{name,price,qty,note});
+    }
+
+    // render carrinho (sidebar)
+    function renderCart(){
+      const count = products.reduce((s,p)=>s+p.qty,0);
+      const subtotal = products.reduce((s,p)=>s + (p.price * p.qty),0);
+      const discount = 0; // placeholder
+      const total = subtotal - discount;
+
+      $('#count-pill').textContent = products.length;
+      $('#cart-count').textContent = count;
+      $('#cart-sub').textContent = fmt(subtotal);
+      $('#cart-disc').textContent = fmt(discount);
+      $('#cart-total').textContent = fmt(total);
+
+      const items = $('#cart-items');
+      items.innerHTML = '';
+      if(products.length===0){ items.innerHTML = '<div class="empty">Nenhum item adicionado ainda.</div>'; return; }
+
+      const table = document.createElement('table');
+      table.innerHTML = `
+        <thead><tr><th>Produto</th><th>Qtd</th><th>Valor</th></tr></thead>
+        <tbody></tbody>
+      `;
+      const tbody = table.querySelector('tbody');
+      products.forEach(p=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="max-width:150px">${escapeHtml(p.name)}</td><td>${p.qty}</td><td>${fmt(p.price * p.qty)}</td>`;
+        tbody.appendChild(tr);
+      });
+      items.appendChild(table);
+    }
+
+    // adicionar eventos do formulário
+    $('#btn-add').onclick = ()=>{
+      const name = $('#p-name').value.trim();
+      const price = parseFloat($('#p-price').value.replace(',','.'))||0;
+      const qty = Math.max(1, parseInt($('#p-qty').value)||1);
+      const age = $('#p-age').value;
+      const note = $('#p-note').value.trim();
+      if(!name || price<=0) { alert('Preencha nome e preço válidos.'); return; }
+      addProduct({name,price,qty,age,note});
+      // limpar campos
+      $('#p-name').value=''; $('#p-price').value=''; $('#p-qty').value='1'; $('#p-note').value='';
+    }
+
+    // exportar JSON
+    $('#btn-export').onclick = ()=>{
+      const data = JSON.stringify(products, null, 2);
+      const blob = new Blob([data],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'carrinho_bebe.json'; a.click(); URL.revokeObjectURL(url);
+    }
+
+    // limpar dados
+    $('#btn-clear-storage').onclick = ()=>{
+      if(confirm('Remover todos os dados salvos no navegador?')){ localStorage.removeItem(KEY); load(); }
+    }
+
+    // amostras
+    $('#btn-sample').onclick = ()=>{
+      const samples = [
+        {name:'Fralda P - Pack 40', price:89.90, qty:1, age:'0-6', note:'Marca X'},
+        {name:'Mamadeira 250ml', price:34.50, qty:2, age:'0-6', note:''},
+        {name:'Carrinho passeio compacto', price:399.00, qty:1, age:'0-3', note:'Dobrável'},
+      ];
+      products = products.concat(samples.map(s=>({...s,id:id()})));
+      save(); renderProducts();
+    }
+
+    // esvaziar
+    $('#btn-empty').onclick = ()=>{ if(confirm('Esvaziar o carrinho?')){ products=[]; save(); renderProducts(); } }
+
+    function preencherParcelas() {
+    const select = document.getElementById("parcelas");
+    select.innerHTML = ""; // limpar opções anteriores
+
+    const subtotal = products.reduce((s,p)=>s + p.price*p.qty, 0);
+
+    for (let i = 1; i <= 12; i++) {
+        let valorParcela = subtotal / i;
+        let opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = `${i}x de R$ ${valorParcela.toFixed(2).replace('.', ',')}`;
+        select.appendChild(opt);
+    }
+}
+
+    // checkout modal
+    $('#btn-checkout').onclick = ()=>{
+      const modal = $('#modal'); const body = $('#modal-body');
+      if(products.length===0) { alert('Carrinho vazio. Adicione produtos antes de finalizar.'); return; }
+      const subtotal = products.reduce((s,p)=>s + p.price*p.qty,0);
+      preencherParcelas();
+      body.innerHTML = `
+        <div><strong>Itens:</strong></div>
+        <ul>${products.map(p=>`<li>${escapeHtml(p.name)} — ${p.qty} x ${fmt(p.price)} = <strong>${fmt(p.price*p.qty)}</strong></li>`).join('')}</ul>
+        <div style="margin-top:8px" class="line"><span>Subtotal</span><strong>${fmt(subtotal)}</strong></div>
+      `;
+      modal.style.display='flex';
+    }
+    $('#modal-cancel').onclick = ()=>{ $('#modal').style.display='none'; }
+    
+    $('#modal-confirm').onclick = () => {
+
+    const subtotal = products.reduce((s,p)=>s + p.price * p.qty, 0);
+    const totalQtd = products.reduce((s,p)=>s + p.qty, 0);
+
+    const nomeResumo = products.length === 1
+        ? products[0].name
+        : `${products.length} itens do carrinho`;
+
+    document.getElementById("send-nome").value = nomeResumo;
+    document.getElementById("send-valor").value = subtotal.toFixed(2);
+    document.getElementById("send-quantidade").value = totalQtd;
+    document.getElementById("send-subtotal").value = subtotal.toFixed(2);
+
+    // envia o JSON para o input oculto existente
+    document.getElementById("send-produtos-json").value = JSON.stringify(products);
+    document.getElementById("send-parcelas").value = document.getElementById("parcelas").value;
+
+    // agora SIM enviar o formulário
+    document.querySelector("form[action='/gerar-link']").submit();
+};
+
+    // small sanitizer
+    function escapeHtml(str){ if(!str) return ''; return String(str).replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m];}); }
+
+    // init
+    load();
+  </script>
+</body>
+</html>

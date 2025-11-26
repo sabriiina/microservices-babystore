@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Erro na Compra</title>
+
+  <style>
+        :root{
+            --bg:#f6f7fb;
+            --card:#ffffff;
+            --accent:#6c5ce7;
+            --danger:#ef4444;
+            --muted:#6b7280;
+            --radius:14px;
+            --shadow:0 6px 18px rgba(0,0,0,0.08);
+            font-family: "Inter", Arial, sans-serif;
+        }
+
+        body{
+            background:linear-gradient(180deg,var(--bg),#fce4e4);
+            min-height:100vh;
+            margin:0;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            padding:20px;
+        }
+
+        .card{
+            background:var(--card);
+            border-radius:var(--radius);
+            box-shadow:var(--shadow);
+            padding:40px 30px;
+            max-width:420px;
+            text-align:center;
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pop{
+            0%{transform:scale(0.85);opacity:0}
+            100%{transform:scale(1);opacity:1}
+        }
+
+        .icon{
+            font-size:60px;
+            color:var(--danger);
+            margin-bottom:10px;
+        }
+
+        h1{
+            margin:0;
+            font-size:1.6rem;
+            color:#111;
+        }
+
+        p{
+            color:var(--muted);
+            margin-top:8px;
+            font-size:1rem;
+        }
+
+        .btn{
+            margin-top:22px;
+            background:var(--accent);
+            color:white;
+            padding:12px 20px;
+            border:none;
+            border-radius:10px;
+            font-size:1rem;
+            cursor:pointer;
+            transition:0.2s;
+            font-weight:600;
+            text-decoration:none;
+            display:inline-block;
+        }
+
+        .btn:hover{
+            opacity:0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="icon">❌</div>
+  <h1>Erro na Compra</h1>
+  <!-- <p>Não foi possível concluir o pagamento. Verifique as informações e tente novamente.</p> -->
+  <p>{{ erro }}</p>
+
+  <a href="https://flask-hello-world-enos.vercel.app/" class="btn">Voltar para o Carrinho</a>
+</div>
+<script>
+     window.onload = function() {
+        localStorage.removeItem(KEY);
+            localStorage.removeItem("carrinho_bebe_v1");
+            products = [];
+        };
+</script>
+</body>
+</html>
