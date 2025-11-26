@@ -47,8 +47,14 @@ Vercel (Deploy + Hospedagem com link criado por eles)
 ## ⚙️ Instalação Local
 
 1️⃣ Clonar o repositório
-git clone https://github.com/SEU_USUARIO/babystore-checkout.git
-cd babystore-checkout
+git clone https://github.com/SEU_USUARIO/microservices-babystore.git
+
+cd microservices-babystore
+
+Depois rodar o comando do Docker Compose para subir localmente:
+```
+docker-compose up --build
+```
 
 2️⃣ Criar ambiente virtual
 python3 -m venv venv
@@ -70,9 +76,6 @@ export ASAAS_ACCESS_TOKEN="seu_token_aqui"
 Windows:
 
 setx ASAAS_ACCESS_TOKEN "seu_token_aqui"
-
-5️⃣ Rodar localmente
-flask run
 
 ## 🔑 Integração com Asaas
 
